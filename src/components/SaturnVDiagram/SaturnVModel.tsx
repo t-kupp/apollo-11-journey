@@ -1,15 +1,10 @@
 import { useGSAP } from "@gsap/react";
 import { useGLTF } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
-import gsap from "gsap";
 import { useCallback, useRef } from "react";
 import * as THREE from "three";
 
-function ModelWithScaling({
-  timelineRef,
-}: {
-  timelineRef: React.RefObject<gsap.core.Timeline | null>;
-}) {
+function ModelWithScaling({ saturnVTimeline }: { saturnVTimeline: GSAPTimeline | null }) {
   const { scene } = useGLTF("/models/saturnV.glb", true);
   const nodeRef = useRef<THREE.Group | null>(null);
 
@@ -28,33 +23,25 @@ function ModelWithScaling({
   useGSAP(() => {
     if (!nodeRef.current) return;
 
-    // Setup GSAP animation with pin
-    const tl = gsap.timeline({
-      scrollTrigger: {
-        trigger: ".model-section",
-        start: "top top",
-        end: "2000",
-        scrub: true,
-        pin: true,
+    console.log("Adding rotation animation");
+    saturnVTimeline?.to(
+      nodeRef.current.rotation,
+      {
+        y: Math.PI * 2,
+        ease: "none",
       },
-    });
-
-    tl.to(nodeRef.current.rotation, {
-      y: Math.PI * 2,
-      ease: "none",
-    });
-
-    timelineRef.current?.add(tl);
-  }, []);
+      "diagram-start"
+    );
+  }, [saturnVTimeline]);
 
   return <primitive scale={0.06} ref={modelRef} object={scene} />;
 }
 
 export default function SaturnVModel({
-  timelineRef,
+  saturnVTimeline,
   className,
 }: {
-  timelineRef: React.RefObject<gsap.core.Timeline | null>;
+  saturnVTimeline: GSAPTimeline | null;
   className?: string;
 }) {
   return (
@@ -63,7 +50,7 @@ export default function SaturnVModel({
       <Canvas className="h-full w-full">
         <ambientLight intensity={0.2} />
         <directionalLight position={[5, 5, 5]} intensity={1.75} />
-        <ModelWithScaling timelineRef={timelineRef} />
+        <ModelWithScaling saturnVTimeline={saturnVTimeline} />
       </Canvas>
     </div>
   );
