@@ -5,8 +5,8 @@ import gsap from "gsap";
 import { useCallback, useRef } from "react";
 import * as THREE from "three";
 
-function ModelWithScaling() {
-  const { scene } = useGLTF("/models/saturnV_2.glb", true);
+function ModelWithScaling({ masterTl }: { masterTl: GSAPTimeline | null }) {
+  const { scene } = useGLTF("/models/saturnV.glb", true);
   const nodeRef = useRef<THREE.Group | null>(null);
 
   const modelRef = useCallback((node: THREE.Group | null) => {
@@ -39,19 +39,27 @@ function ModelWithScaling() {
       y: Math.PI * 2,
       ease: "none",
     });
+
+    if (masterTl) masterTl.add(tl);
   }, []);
 
   return <primitive scale={0.06} ref={modelRef} object={scene} />;
 }
 
-export default function SaturnVModel() {
+export default function SaturnVModel({
+  masterTl,
+  className,
+}: {
+  masterTl: GSAPTimeline | null;
+  className?: string;
+}) {
   return (
-    <div className="model-section h-full">
+    <div className={className + " model-section h-full"}>
       {/* Wrapper div */}
-      <Canvas className="h-full w-full bg-blue-200">
+      <Canvas className="h-full w-full">
         <ambientLight intensity={0.2} />
         <directionalLight position={[5, 5, 5]} intensity={1.75} />
-        <ModelWithScaling />
+        <ModelWithScaling masterTl={masterTl} />
       </Canvas>
     </div>
   );
